@@ -2,6 +2,7 @@
 set -euxo pipefail
 
 TAG=$(git describe --all --exact-match HEAD)
+TAG=${TAG:5}
 RELEASE_DIR=${RELEASE_DIR:-"tmp/releases/${TAG}-$(uname -s)/"}
 
 # ./script/test.sh
