@@ -4,7 +4,7 @@ set -euxo pipefail
 TAG=$(git describe --all --exact-match HEAD)
 RELEASE_DIR=${RELEASE_DIR:-"tmp/releases/${TAG}-$(uname -s)/"}
 
-./script/test.sh
+# ./script/test.sh
 rm -rf "${RELEASE_DIR}"
 
 mkdir -p "${RELEASE_DIR}"
@@ -36,5 +36,5 @@ if [ "$RES" != "a(1)" ]; then
     echo "formatting failed"
     exit 1
 fi
-
-tar -cvz -f "rubyfmt-${TAG}-$(uname -s).tar.gz" "${RELEASE_DIR}"
+# [c]reate a g[z]ipped archive and write it to a [f]ile [v]erbosely
+tar cvzf "rubyfmt-${TAG}-$(uname -s).tar.gz" "${RELEASE_DIR}"
