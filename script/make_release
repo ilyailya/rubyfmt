@@ -11,20 +11,16 @@ mkdir -p "${RELEASE_DIR}"
 mkdir -p "${RELEASE_DIR}/lib/"
 mkdir -p "${RELEASE_DIR}/include/"
 
-cargo build
 cargo build --release
 
 cp target/release/rubyfmt-main "${RELEASE_DIR}/rubyfmt"
 pwd
-cp target/debug/rubyfmt-main "${RELEASE_DIR}/rubyfmt-debug"
 pwd
 # shellcheck disable=2012
 RELEASE_LIB=$(find target/release/ | grep -i 'librubyfmt-.*\.a$')
 cp "$RELEASE_LIB" "${RELEASE_DIR}/lib/librubyfmt.a"
 pwd
 # shellcheck disable=2012
-DEBUG_LIB=$(find target/debug/ | grep -i 'librubyfmt-.*\.a$')
-cp "$DEBUG_LIB" "${RELEASE_DIR}/lib/librubyfmt-debug.a"
 pwd
 cp librubyfmt/include/rubyfmt.h "${RELEASE_DIR}/include/rubyfmt.h"
 pwd
@@ -36,5 +32,9 @@ if [ "$RES" != "a(1)" ]; then
     echo "formatting failed"
     exit 1
 fi
+
+echo "RELEASE DIR: $RELEASE_DIR"
+ls "$RELEASE_DIR"
+
 # [c]reate a g[z]ipped archive and write it to a [f]ile [v]erbosely
-tar cvzf "rubyfmt-${TAG}-$(uname -s).tar.gz" "${RELEASE_DIR}"
+tar cvf "rubyfmt-${TAG}-$(uname -s).tar.gz" "${RELEASE_DIR}"
