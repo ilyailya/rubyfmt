@@ -38,4 +38,4 @@ echo "RELEASE DIR: $RELEASE_DIR"
 ls "$RELEASE_DIR"
 
 # [c]reate a g[z]ipped archive and write it to a [f]ile [v]erbosely
-tar cvf "rubyfmt-${TAG}-$(uname -s).tar.gz" "${RELEASE_DIR}"
+tar cvf "rubyfmt-${TAG}-$(uname -sm | tr ' ' '-').tar.gz" "${RELEASE_DIR}"
