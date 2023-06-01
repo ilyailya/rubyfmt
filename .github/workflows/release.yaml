@@ -4,9 +4,6 @@ on:
     tags:
       - "*"
 
-permissions:
-  contents: write
-
 env:
   BUNDLE_PATH: /tmp/.bundle
   GEM_HOME: /tmp/.bundle
@@ -14,28 +11,47 @@ env:
   TERM: xterm256
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
+  build-macos:
+    runs-on: macos-latest
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        linux_targets: [aarch64-unknown-linux-gnu, x86_64-unknown-linux-gnu]
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
           fetch-depth: 0
-      - if: runner.os == 'macOS'
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.63.0
           target: aarch64-apple-darwin
           default: true
           override: true
           profile: minimal
-      - if: runner.os != 'macOS'
-        uses: actions-rs/toolchain@v1
+      - uses: actions/cache@v2
+        with:
+          path: |
+            librubyfmt/ruby_checkout
+          key: macos-darwin-ruby-v1-${{ hashFiles('.git/modules/librubyfmt/ruby_checkout/HEAD') }}
+      - run: |
+          brew install automake bison
+          echo "/usr/local/opt/bison/bin:$PATH" >> $GITHUB_PATH
+      - run: ./script/make_release
+      - uses: actions/upload-artifact@v3
+        with:
+          name: rubyfmt-release-artifact-macos
+          path: rubyfmt-*.tar.gz
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        linux_targets: [aarch64-unknown-linux-gnu, x86_64-unknown-linux-gnu]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0
+      - uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.63.0
           override: true
@@ -45,15 +61,11 @@ jobs:
         with:
           path: |
             librubyfmt/ruby_checkout
-          key: ${{ runner.os }}-${{ matrix.linux_targets }}-ruby-v1-${{ hashFiles('.git/modules/librubyfmt/ruby_checkout/HEAD') }}
-      - if: runner.os == 'macOS'
-        run: |
-          brew install automake bison
-          echo "/usr/local/opt/bison/bin:$PATH" >> $GITHUB_PATH
+          key: ubuntu-${{ matrix.linux_targets }}-ruby-v1-${{ hashFiles('.git/modules/librubyfmt/ruby_checkout/HEAD') }}
       - run: ./script/make_release
       - uses: actions/upload-artifact@v3
         with:
-          name: rubyfmt-release-artifact-${{ matrix.os }}-${{ matrix.linux_targets }}
+          name: rubyfmt-release-artifact-ubuntu-latest-${{ matrix.linux_targets }}
           path: rubyfmt-*.tar.gz
   source-release:
     runs-on: macos-latest
@@ -74,12 +86,9 @@ jobs:
   release:
     runs-on: macos-latest
     needs:
-      - build
-      - source-release
+      - build-macos
+      - build-linux
     steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: rubyfmt-source-release
       - uses: actions/download-artifact@v3
         with:
           name: rubyfmt-release-artifact-ubuntu-latest-x86_64-unknown-linux-gnu
@@ -88,10 +97,7 @@ jobs:
           name: rubyfmt-release-artifact-ubuntu-latest-aarch64-unknown-linux-gnu
       - uses: actions/download-artifact@v3
         with:
-          name: rubyfmt-release-artifact-macos-latest-x86_64-unknown-linux-gnu
-      - uses: actions/download-artifact@v3
-        with:
-          name: rubyfmt-release-artifact-macos-latest-aarch64-unknown-linux-gnu
+          name: rubyfmt-release-artifact-macos
       - name: Ship It 🚢
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
