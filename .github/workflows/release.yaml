@@ -38,7 +38,7 @@ jobs:
       - run: |
           brew install automake bison
           echo "/usr/local/opt/bison/bin:$PATH" >> $GITHUB_PATH
-      - run: ./script/make_release
+      - run: ./script/make_release x86_64-apple-darwin
       - uses: actions/upload-artifact@v3
         with:
           name: rubyfmt-release-artifact-macos
@@ -65,7 +65,7 @@ jobs:
           path: |
             librubyfmt/ruby_checkout
           key: ubuntu-${{ matrix.linux_targets }}-ruby-v1-${{ hashFiles('.git/modules/librubyfmt/ruby_checkout/HEAD') }}
-      - run: ./script/make_release
+      - run: ./script/make_release {{matrix.linux_targets}}
       - uses: actions/upload-artifact@v3
         with:
           name: rubyfmt-release-artifact-ubuntu-latest-${{ matrix.linux_targets }}

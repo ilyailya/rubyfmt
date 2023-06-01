@@ -1,6 +1,15 @@
 #!/bin/bash
 set -euxo pipefail
 
+
+if [ "$#" -eq 0 ]; then
+    echo "Please provide target for the build"
+    echo "List of available targets is available here:"
+    echo "https://doc.rust-lang.org/nightly/rustc/platform-support.html"
+    exit 1
+fi
+
+ARCH=$1
 TAG=$(git describe --all --exact-match HEAD)
 TAG=${TAG:5}
 RELEASE_DIR=${RELEASE_DIR:-"tmp/releases/${TAG}-$(uname -s)/"}
@@ -12,7 +21,7 @@ mkdir -p "${RELEASE_DIR}"
 mkdir -p "${RELEASE_DIR}/lib/"
 mkdir -p "${RELEASE_DIR}/include/"
 
-cargo build --release
+cargo build --release --target "$ARCH"
 
 cp target/release/rubyfmt-main "${RELEASE_DIR}/rubyfmt"
 pwd
@@ -38,4 +47,4 @@ echo "RELEASE DIR: $RELEASE_DIR"
 ls "$RELEASE_DIR"
 
 # [c]reate a g[z]ipped archive and write it to a [f]ile [v]erbosely
-tar cvf "rubyfmt-${TAG}-$(uname -sm | tr ' ' '-').tar.gz" "${RELEASE_DIR}"
+tar cvf "rubyfmt-${TAG}-$(uname -sm | tr ' ' '-')-${ARCH}.tar.gz" "${RELEASE_DIR}"
