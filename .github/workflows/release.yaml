@@ -4,6 +4,9 @@ on:
     tags:
       - "*"
 
+permissions:
+  contents: write
+
 env:
   BUNDLE_PATH: /tmp/.bundle
   GEM_HOME: /tmp/.bundle
