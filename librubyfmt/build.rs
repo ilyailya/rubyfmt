@@ -38,15 +38,15 @@ fn main() -> Output {
 
     let new_checkout_sha = get_ruby_checkout_sha();
 
+    make_configure(&ruby_checkout_path)?;
+    run_configure(&ruby_checkout_path)?;
+    build_ruby(&ruby_checkout_path)?;
     // Only rerun this build if the ruby_checkout has changed
-    match old_checkout_sha {
-        Some(old_sha) if old_sha == new_checkout_sha => {}
-        _ => {
-            make_configure(&ruby_checkout_path)?;
-            run_configure(&ruby_checkout_path)?;
-            build_ruby(&ruby_checkout_path)?;
-        }
-    }
+    // match old_checkout_sha {
+        // Some(old_sha) if old_sha == new_checkout_sha => {}
+        // _ => {
+        // }
+    // }
 
     cc::Build::new()
         .file("src/rubyfmt.c")
@@ -70,11 +70,6 @@ fn main() -> Output {
         ruby_checkout_path.display()
     );
     println!("cargo:rustc-link-lib=static={}", libname);
-    #[cfg(not(windows))]
-    println!("cargo:rustc-link-lib=dylib=z");
-
-    #[cfg(target_os = "linux")]
-    println!("cargo:rustc-link-lib=dylib=crypt");
 
     Ok(())
 }
@@ -93,11 +88,25 @@ fn make_configure(_: &Path) -> Output {
     Ok(())
 }
 
-#[cfg(unix)]
+#[cfg(target_arch="x86_64")]
 fn run_configure(ruby_checkout_path: &Path) -> Output {
     let o = Command::new("./configure")
         .arg("--without-gmp")
         .arg("--disable-jit-support")
+        .current_dir(ruby_checkout_path)
+        .status()?;
+    check_process_success("./configure", o)
+}
+#[cfg(target_arch="aarch64")]
+fn run_configure(ruby_checkout_path: &Path) -> Output {
+    let o = Command::new("./configure")
+        .arg("--without-gmp")
+        .arg("--disable-jit-support")
+        .arg("--target=aarch64-unknown-linux-gnu")
+        .arg("--host=x86_64-pc-linux-gnu")
+        .env("CC", "aarch64-linux-gnu-gcc")
+        .env("AR", "aarch64-linux-gnu-ar")
+        .env("RANLIB", "aarch64-linux-gnu-ranlib")
         .current_dir(ruby_checkout_path)
         .status()?;
     check_process_success("./configure", o)
@@ -123,7 +132,7 @@ fn run_configure(ruby_checkout_path: &Path) -> Output {
 #[cfg(unix)]
 fn build_ruby(ruby_checkout_path: &Path) -> Output {
     let o = Command::new("make")
-        .arg("-j")
+        .arg("main")
         .current_dir(ruby_checkout_path)
         .status()?;
     check_process_success("make", o)

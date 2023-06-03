@@ -14,6 +14,9 @@ TAG=$(git describe --all --exact-match HEAD)
 TAG=${TAG:5}
 RELEASE_DIR=${RELEASE_DIR:-"tmp/releases/${TAG}-$(uname -s)/"}
 
+rustup target add aarch64-unknown-linux-gnu
+rustup toolchain install --force-non-host stable-aarch64-unknown-linux-gnu
+
 # ./script/test.sh
 rm -rf "${RELEASE_DIR}"
 
@@ -21,6 +24,8 @@ mkdir -p "${RELEASE_DIR}"
 mkdir -p "${RELEASE_DIR}/lib/"
 mkdir -p "${RELEASE_DIR}/include/"
 
+TARGET_CC=aarch64-linux-gnu-gcc \
+TARGET_AR=aarch64-linux-gnu-ar \
 cargo build --release --target "$ARCH"
 
 cp target/release/rubyfmt-main "${RELEASE_DIR}/rubyfmt"
@@ -48,3 +53,45 @@ ls "$RELEASE_DIR"
 
 # [c]reate a g[z]ipped archive and write it to a [f]ile [v]erbosely
 tar cvf "rubyfmt-${TAG}-$(uname -sm | tr ' ' '-')-${ARCH}.tar.gz" "${RELEASE_DIR}"
+
+
+
+# FROM rust:latest
+
+# RUN apt update && apt upgrade -y
+# RUN apt install -y g++-aarch64-linux-gnu libc6-dev-arm64-cross
+# apt install -y g++-aarch64-linux-gnu libc6-dev-arm64-cross
+# sudo apt install libcrypt
+# rustup target add aarch64-unknown-linux-gnu
+# rustup toolchain install --force-non-host stable-aarch64-unknown-linux-gnu
+
+# TARGET_CC=aarch64-linux-gnu-gcc \
+# TARGET_AR=aarch64-linux-gnu-ar \
+# cargo build --release --target aarch64-unknown-linux-gnu
+# $ sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+
+# # WORKDIR /app
+
+# CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS="-Clink-self-contained=yes -Clinker=rust-lld" \
+# TARGET_CC=aarch64-linux-gnu-gcc \
+# TARGET_AR=aarch64-linux-gnu-ar \
+# cargo build --release --target aarch64-unknown-linux-gnu
+
+# CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc \
+    # CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc \
+    # CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++ cargo build --release --target aarch64-unknown-linux-gnu
+
+# CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc \
+# AR_aarch64_unknown_linux_gnu=aarch64-linux-gnu-ar \
+# cargo build --release --target aarch64-unknown-linux-gnu
+
+# # CMD ["cargo", "build", "--target", "aarch64-unknown-linux-gnu"]
+#
+#
+#
+#
+
+
+
+
