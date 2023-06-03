@@ -97,6 +97,7 @@ fn run_configure(ruby_checkout_path: &Path) -> Output {
         .status()?;
     check_process_success("./configure", o)
 }
+
 #[cfg(target_arch="aarch64")]
 fn run_configure(ruby_checkout_path: &Path) -> Output {
     let o = Command::new("./configure")
