@@ -133,10 +133,16 @@ fn run_configure(ruby_checkout_path: &Path) -> Output {
 #[cfg(unix)]
 fn build_ruby(ruby_checkout_path: &Path) -> Output {
     let o = Command::new("make")
+        .arg("clean")
+        .current_dir(ruby_checkout_path)
+        .status()?;
+    check_process_success("make clean", o);
+
+    let o = Command::new("make")
         .arg("main")
         .current_dir(ruby_checkout_path)
         .status()?;
-    check_process_success("make", o)
+    check_process_success("make main", o)
 }
 
 #[cfg(windows)]
