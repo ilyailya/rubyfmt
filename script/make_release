@@ -26,6 +26,7 @@ mkdir -p "${RELEASE_DIR}"
 mkdir -p "${RELEASE_DIR}/lib/"
 mkdir -p "${RELEASE_DIR}/include/"
 
+RUSTFLAGS="-C linker=aarch64-linux-gnu-gcc" \
 TARGET_CC=aarch64-linux-gnu-gcc \
 TARGET_AR=aarch64-linux-gnu-ar \
 cargo build --release --target "$ARCH"
