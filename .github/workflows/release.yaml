@@ -14,41 +14,12 @@ env:
   TERM: xterm256
 
 jobs:
-  build-macos:
-    runs-on: macos-latest
-    strategy:
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-          fetch-depth: 0
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.63.0
-          target: aarch64-apple-darwin
-          default: true
-          override: true
-          profile: minimal
-      - uses: actions/cache@v2
-        with:
-          path: |
-            librubyfmt/ruby_checkout
-          key: macos-darwin-ruby-v1-${{ hashFiles('.git/modules/librubyfmt/ruby_checkout/HEAD') }}
-      - run: |
-          brew install automake bison
-          echo "/usr/local/opt/bison/bin:$PATH" >> $GITHUB_PATH
-      - run: ./script/make_release x86_64-apple-darwin
-      - uses: actions/upload-artifact@v3
-        with:
-          name: rubyfmt-release-artifact-macos
-          path: rubyfmt-*.tar.gz
   build-linux:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        linux_targets: [aarch64-unknown-linux-gnu, x86_64-unknown-linux-gnu]
+        linux_targets: [aarch64-unknown-linux-gnu]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -70,26 +41,9 @@ jobs:
         with:
           name: rubyfmt-release-artifact-ubuntu-latest-${{ matrix.linux_targets }}
           path: rubyfmt-*.tar.gz
-  source-release:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-          fetch-depth: 0
-      - run: |
-          TAG=$(git describe HEAD)
-          RELEASE_DIR="out/release"
-          mkdir -p ${RELEASE_DIR}
-          ./script/make_source_release ${TAG}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: rubyfmt-source-release
-          path: "out/release/source"
   release:
     runs-on: macos-latest
     needs:
-      - build-macos
       - build-linux
     steps:
       - uses: actions/download-artifact@v3
