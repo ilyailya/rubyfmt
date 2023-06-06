@@ -90,6 +90,7 @@ fn run_configure(ruby_checkout_path: &Path) -> Output {
         .arg("--with-ext=ripper")
         .arg("--disable-jit-support")
         .arg("--target=aarch64-unknown-linux-gnu")
+        .arg("--host=x86_64")
         .env("CC", "aarch64-linux-gnu-gcc")
         .env("AR", "aarch64-linux-gnu-ar")
         .env("RANLIB", "aarch64-linux-gnu-ranlib")
