@@ -84,14 +84,12 @@ fn make_configure(ruby_checkout_path: &Path) -> Output {
 }
 
 
-#[cfg(target_arch="aarch64")]
 fn run_configure(ruby_checkout_path: &Path) -> Output {
     let o = Command::new("./configure")
         .arg("--without-gmp")
         .arg("--with-ext=ripper")
         .arg("--disable-jit-support")
         .arg("--target=aarch64-unknown-linux-gnu")
-        .arg("--host=x86_64-pc-linux-gnu")
         .env("CC", "aarch64-linux-gnu-gcc")
         .env("AR", "aarch64-linux-gnu-ar")
         .env("RANLIB", "aarch64-linux-gnu-ranlib")
