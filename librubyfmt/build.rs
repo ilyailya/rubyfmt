@@ -83,20 +83,6 @@ fn make_configure(ruby_checkout_path: &Path) -> Output {
     check_process_success("autoreconf --install", o)
 }
 
-#[cfg(windows)]
-fn make_configure(_: &Path) -> Output {
-    Ok(())
-}
-
-#[cfg(target_arch="x86_64")]
-fn run_configure(ruby_checkout_path: &Path) -> Output {
-    let o = Command::new("./configure")
-        .arg("--without-gmp")
-        .arg("--disable-jit-support")
-        .current_dir(ruby_checkout_path)
-        .status()?;
-    check_process_success("./configure", o)
-}
 
 #[cfg(target_arch="aarch64")]
 fn run_configure(ruby_checkout_path: &Path) -> Output {
@@ -114,23 +100,6 @@ fn run_configure(ruby_checkout_path: &Path) -> Output {
     check_process_success("./configure", o)
 }
 
-#[cfg(windows)]
-fn run_configure(ruby_checkout_path: &Path) -> Output {
-    let mut command = Command::new(ruby_checkout_path.join("win32/configure.bat"));
-    command
-        .arg("--without-gmp")
-        .arg("--disable-mjit-support")
-        .arg("--with-static-linked-ext")
-        .arg("--disable-install-doc")
-        .arg("--with-ext=ripper")
-        .envs(find_tool("nmake.exe")?.env().iter().cloned())
-        .current_dir(ruby_checkout_path);
-    #[cfg(target_arch = "x86_64")]
-    command.arg("--target=x64-mswin64");
-    let o = command.status()?;
-    check_process_success("win32/configure.bat", o)
-}
-
 #[cfg(unix)]
 fn build_ruby(ruby_checkout_path: &Path) -> Output {
     let o = Command::new("make")
@@ -144,22 +113,6 @@ fn build_ruby(ruby_checkout_path: &Path) -> Output {
         .current_dir(ruby_checkout_path)
         .status()?;
     check_process_success("make main", o)
-}
-
-#[cfg(windows)]
-fn build_ruby(ruby_checkout_path: &Path) -> Output {
-    let o = find_tool("nmake.exe")?
-        .to_command()
-        .current_dir(ruby_checkout_path)
-        .status()?;
-    check_process_success("nmake", o)
-}
-
-#[cfg(windows)]
-fn find_tool(tool: &str) -> Result<cc::Tool, Box<dyn Error>> {
-    let target = env::var("TARGET")?;
-    cc::windows_registry::find_tool(&target, tool)
-        .ok_or_else(|| format!("Failed to find {}", tool).into())
 }
 
 fn check_process_success(command: &str, code: ExitStatus) -> Output {
