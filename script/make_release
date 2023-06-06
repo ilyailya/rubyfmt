@@ -27,6 +27,8 @@ mkdir -p "${RELEASE_DIR}/lib/"
 mkdir -p "${RELEASE_DIR}/include/"
 
 {
+  CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc \
+  CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc \
   RUSTFLAGS="-C linker=aarch64-linux-gnu-gcc" \
   TARGET_CC=aarch64-linux-gnu-gcc \
   TARGET_AR=aarch64-linux-gnu-ar \
