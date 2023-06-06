@@ -102,6 +102,7 @@ fn run_configure(ruby_checkout_path: &Path) -> Output {
 fn run_configure(ruby_checkout_path: &Path) -> Output {
     let o = Command::new("./configure")
         .arg("--without-gmp")
+        .arg("--with-ext=ripper")
         .arg("--disable-jit-support")
         .arg("--target=aarch64-unknown-linux-gnu")
         .arg("--host=x86_64-pc-linux-gnu")
