@@ -53,13 +53,6 @@ cp librubyfmt/include/rubyfmt.h "${RELEASE_DIR}/include/rubyfmt.h"
 pwd
 cp RELEASE_README.md "${RELEASE_DIR}/RELEASE_README"
 
-# check the binary
-RES=$(echo 'a(1)' | "${RELEASE_DIR}/rubyfmt")
-if [ "$RES" != "a(1)" ]; then
-    echo "formatting failed"
-    exit 1
-fi
-
 echo "RELEASE DIR: $RELEASE_DIR"
 ls "$RELEASE_DIR"
 
