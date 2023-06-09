@@ -55,7 +55,7 @@ fn main() -> Output {
         .include(ruby_checkout_path.join(".ext/include/arm64-darwin20"))
         .include(ruby_checkout_path.join(".ext/include/arm64-darwin21"))
         .include(ruby_checkout_path.join(".ext/include/arm64-darwin22"))
-        .include(ruby_checkout_path.join(".ext/include/arm64-linux"))
+        .include(ruby_checkout_path.join(".ext/include/aarch64-linux-gnu"))
         .include(ruby_checkout_path.join(".ext/include/x86_64-darwin21"))
         .include(ruby_checkout_path.join(".ext/include/x86_64-darwin20"))
         .include(ruby_checkout_path.join(".ext/include/x86_64-darwin19"))
