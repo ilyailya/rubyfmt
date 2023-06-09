@@ -12,7 +12,7 @@ fi
 ARCH=$1
 TAG=$(git describe --all --exact-match HEAD)
 TAG=${TAG:5}
-RELEASE_DIR=${RELEASE_DIR:-"tmp/releases/${TAG}-$(uname -s)/"}
+RELEASE_DIR=${RELEASE_DIR:-"tmp/releases/${TAG}-$(uname -sm | tr ' ' '-')-${ARCH}/"}
 
 sudo apt-get update
 sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
@@ -23,8 +23,8 @@ rustup toolchain install --force-non-host stable-aarch64-unknown-linux-gnu
 rm -rf "${RELEASE_DIR}"
 
 mkdir -p "${RELEASE_DIR}"
-mkdir -p "${RELEASE_DIR}/lib/"
-mkdir -p "${RELEASE_DIR}/include/"
+mkdir -p "${RELEASE_DIR}lib/"
+mkdir -p "${RELEASE_DIR}include/"
 
 {
   CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc \
@@ -38,11 +38,13 @@ mkdir -p "${RELEASE_DIR}/include/"
   exit 1
 }
 
-cp target/release/rubyfmt-main "${RELEASE_DIR}/rubyfmt"
+
+RELEASE_BIN=$(find target -name rubyfmt-main)
+cp "$RELEASE_BIN" "${RELEASE_DIR}/rubyfmt"
 pwd
 pwd
 # shellcheck disable=2012
-RELEASE_LIB=$(find target/release/ | grep -i 'librubyfmt-.*\.a$')
+RELEASE_LIB=$(find target | grep -i 'librubyfmt-.*\.a$')
 cp "$RELEASE_LIB" "${RELEASE_DIR}/lib/librubyfmt.a"
 pwd
 # shellcheck disable=2012
